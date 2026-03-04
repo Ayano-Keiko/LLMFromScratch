@@ -1,6 +1,6 @@
 import torch
 import tensorflow as tf
-from multihead_attentionTF import MultiHeadAttention
+from multihead_attention import MultiHeadAttention
 
 if __name__ == '__main__':
     torch.manual_seed(123)

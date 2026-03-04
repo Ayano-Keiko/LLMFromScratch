@@ -1,67 +1,46 @@
-# Note:
-# Uncomment the following code to calculate the execution time
-# import time
-# start_time = time.time()
-import torch
 import json
+
+import tensorflow as tf
 import tiktoken
-from chapter04_LLM_arch.GPTArchitecture import  GPTModel
-from pretrain import train_model_simple
-from chapter02.dataset import create_dataloader_v1
+import keras
+from chapter02.dataset import GPTDataset
+from chapter04_LLM_arch.GPTArchitecture import GPTModel
+from chapter04_LLM_arch.generate_text_simple import generate_text_simple
+from text_id_convertion import text_to_id
 
-file_path = "../the-verdict.txt"
-with open(file_path, "r", encoding="utf-8") as file:
-    text_data = file.read()
+if __name__ == '__main__':
+    # print(keras.backend.backend())
 
-config = json.load(open('../GPT_CONFIG_124M.json', mode='r', encoding='UTF-8'))
-tokenizer = tiktoken.get_encoding('gpt2')
+    tokenizer = tiktoken.get_encoding('gpt2')
+    config = json.load(open('../GPT_CONFIG_124M.json', mode='r', encoding='UTF-8'))
 
-# Train/validation ratio
-train_ratio = 0.90
-split_idx = int(train_ratio * len(text_data))
-train_data = text_data[:split_idx]
-val_data = text_data[split_idx:]
+    data = GPTDataset('../the-verdict.txt',
+                            'utf-8',
+                            tokenizer,
+                            16,
+                            16
+                            )
+    source, target = data.getDataset()
 
+    dataset = tf.data.Dataset.zip(source, target)
+    dataset = dataset.batch(batch_size=16)
 
-torch.manual_seed(123)
+    # for batch in dataset.take(5):
+    #     print(batch[0].shape, batch[1].shape)
 
-train_loader = create_dataloader_v1(
-    train_data,
-    batch_size=2,
-    max_length=config["context_length"],
-    stride=config["context_length"],
-    drop_last=True,
-    shuffle=True,
-    num_workers=0
-)
+    # data_size = len(dataset)
 
-val_loader = create_dataloader_v1(
-    val_data,
-    batch_size=2,
-    max_length=config["context_length"],
-    stride=config["context_length"],
-    drop_last=False,
-    shuffle=False,
-    num_workers=0
-)
+    # print(data_size)
+    train_data, valid_data = tf.keras.utils.split_dataset(dataset, left_size=0.9, shuffle=False)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-torch.manual_seed(123)
-model = GPTModel(config)
-model.to(device)
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.0004, weight_decay=0.1)
+    model = GPTModel(config)
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=1e-6),
+        loss=keras.losses.SparseCategoricalCrossentropy(),  # CategoricalCrossentropy
+        metrics=['accuracy']
+    )
+    history = model.fit(train_data, validation_data=valid_data, epochs=20)
 
-print(f'device usage: {device}')
-
-num_epochs = 10
-train_losses, val_losses, tokens_seen = train_model_simple(
-    model, train_loader, val_loader, optimizer, device,
-    num_epochs=num_epochs, eval_freq=5, eval_iter=5,
-    start_context="Every effort moves you", tokenizer=tokenizer
-)
-
-# Note:
-# Uncomment the following code to show the execution time
-# end_time = time.time()
-# execution_time_minutes = (end_time - start_time) / 60
-# print(f"Training completed in {execution_time_minutes:.2f} minutes.")
+    text = "Hello, "
+    ids = text_to_id(text, tokenizer, model)
+    generate_text_simple(model, ids, 6, 20)

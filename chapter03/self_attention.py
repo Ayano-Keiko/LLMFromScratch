@@ -1,38 +1,30 @@
-from torch import nn
-import torch
+import tensorflow as tf
+from keras import Layer, layers
 
-class SelfAttention_v1(nn.Module):
-    def __init__(self, d_in, d_out, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.W_query = nn.Parameter(torch.rand(d_in, d_out))
-        self.W_key = nn.Parameter(torch.rand(d_in, d_out))
-        self.W_value = nn.Parameter(torch.rand(d_in, d_out))
 
-    def forward(self, x):
-        query = x @ self.W_query
-        key = x @ self.W_key
-        value = x @ self.W_value
+class SelfAttention(Layer):
+    def __init__(self, d_in, d_out, qkv_bias=False):
+        super().__init__()
+        self.d_in = d_in
+        self.d_out = d_out
 
-        attn_score = query @ key.T
-        attn_weights = torch.softmax(attn_score / key.shape[-1] ** 0.5, dim=-1)
-        context_vec = attn_weights @ value
+        self.W_q = layers.Dense(d_out, use_bias=qkv_bias)  # self.add_weight(shape=(d_in, d_out))
+        self.W_k = layers.Dense(d_out, use_bias=qkv_bias)  # self.add_weight(shape=(d_in, d_out))
+        self.W_v = layers.Dense(d_out, use_bias=qkv_bias)  # self.add_weight(shape=(d_in, d_out))
 
+
+    def call(self, x, *args, **kwargs):
+        keys = self.W_k(x)  # [ L, d_out ]
+        query = self.W_q(x)  # [ L, d_out ]
+        value = self.W_v(x)  # [ L, d_out ]
+
+        attn_scores = tf.linalg.matmul(keys, tf.transpose(query, perm=[1, 0]))
+
+        attn_weights = tf.nn.softmax(attn_scores / tf.math.sqrt(tf.constant([keys.shape[-1]], dtype=tf.float32)),
+                                     axis=-1)
+        context_vec =  tf.linalg.matmul(attn_weights, value)
         return context_vec
 
-class SelfAttention_v2(nn.Module):
-    def __init__(self, d_in, d_out, qkv_bias = False, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
 
-    def forward(self, x):
-        query = self.W_query(x)
-        key = self.W_key(x)
-        value = self.W_value(x)
 
-        attn_score = query @ key.T
-        attn_weights = torch.softmax(attn_score / key.shape[-1] ** 0.5, dim=-1)
-        context_vec = attn_weights @ value
 
-        return context_vec

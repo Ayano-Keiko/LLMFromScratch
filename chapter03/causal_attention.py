@@ -1,35 +1,36 @@
-import torch
+from keras import Layer, layers
+import tensorflow as tf
 
 
-class CausalAttention(torch.nn.Module):
+class CausalAttention(Layer):
     def __init__(self, d_in, d_out, context_length, dropout, qkv_bias=False):
         super().__init__()
-        self.d_out = d_out
-        self.W_query = torch.nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.W_key = torch.nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.W_value = torch.nn.Linear(d_in, d_out, bias=qkv_bias)
-
-        self.dropout = torch.nn.Dropout(dropout)
-        self.register_buffer('mask',
-                             torch.triu(torch.ones(context_length, context_length), diagonal=1)
-                             )
-
-    def forward(self, x):
-        b, num_token, d_in = x.shape
-
-        key = self.W_key(x)
-        query = self.W_query(x)
-        value = self.W_value(x)
-
-        attn_score = query @ key.transpose(1, 2)
-        attn_score.masked_fill_(
-            self.mask.bool()[:num_token, :num_token], -torch.inf
+        self.query = layers.Dense(d_out, use_bias=qkv_bias)
+        self.key = layers.Dense(d_out, use_bias=qkv_bias)
+        self.value = layers.Dense(d_out, use_bias=qkv_bias)
+        self.dropout = layers.Dropout(dropout)
+        self.context_length = d_out
+        self.masked = tf.cast(
+            tf.linalg.band_part(
+                tf.ones(shape=(context_length, context_length)),
+                -1,
+                0
+            ),
+            dtype=tf.float32
         )
-        attn_weights = torch.softmax(
-            attn_score / key.shape[-1] ** 0.5,
-            dim=-1
-        )
-        attn_weights = self.dropout(attn_weights)
-        context_vec = attn_weights @ value
+
+    def call(self, x, *args, **kwargs):
+        query = self.query(x)  # --> [batch size, S, d_out ]
+        key = self.key(x)  # --> [batch size, S, d_out ]
+        val = self.value(x)  # --> [batch size, S, d_out ]
+
+        attn_scores = tf.matmul(query, tf.transpose(key, perm=(0, 2, 1)))
+
+        mask = attn_scores * self.masked + ( 1 - self.masked ) * (-1e9)
+        d_k = tf.cast(tf.shape(key)[-1], dtype=tf.float32)
+        attn_weights = mask / tf.math.sqrt(d_k)
+        attn_weights = tf.nn.softmax(attn_weights, axis=-1)
+
+        context_vec = tf.matmul(attn_weights, val)
 
         return context_vec
