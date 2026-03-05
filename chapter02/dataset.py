@@ -1,7 +1,7 @@
 import tiktoken
 import tensorflow as tf
 
-class GPTDataset:
+class GPTDataset_v1:
     def __init__(self, txt_path, read_encoding, tokenizer, max_length, stride, **kwargs):
         super().__init__(**kwargs)
         self.source = []
