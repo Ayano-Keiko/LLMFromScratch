@@ -3,7 +3,7 @@ import tensorflow
 import tensorflow as tf
 import keras
 import numpy
-from chapter03.multihead_attentionTF import MultiHeadAttention
+from chapter03.multihead_attention import MultiHeadAttention
 from matplotlib import pyplot as plt
 
 class LayerNorm(keras.layers.Layer):
@@ -136,5 +136,6 @@ if __name__ == '__main__':
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, res)
     ax.grid()
+
 
     plt.show()
