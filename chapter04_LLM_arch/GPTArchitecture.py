@@ -6,6 +6,7 @@ import numpy
 from chapter03.multihead_attention import MultiHeadAttention
 from matplotlib import pyplot as plt
 
+@keras.saving.register_keras_serializable()
 class LayerNorm(keras.layers.Layer):
     def __init__(self, emb_dim):
         super().__init__()
@@ -30,6 +31,12 @@ class LayerNorm(keras.layers.Layer):
 
         return tf.math.multiply(self.scale, norm_x) + self.shift
 
+    def get_config(self):
+        cfg = super().get_config()
+
+        return cfg
+
+@keras.saving.register_keras_serializable()
 class GELU(keras.layers.Layer):
     def __init__(self):
         super().__init__()
@@ -44,6 +51,12 @@ class GELU(keras.layers.Layer):
                 val * (x + c * tf.math.pow(x, power))
             ))
 
+    def get_config(self):
+        cfg = super().get_config()
+
+        return cfg
+
+@keras.saving.register_keras_serializable()
 class FeedForward(keras.layers.Layer):
     def __init__(self, config):
         super().__init__()
@@ -55,6 +68,12 @@ class FeedForward(keras.layers.Layer):
         x = self.linear1(x)
         return self.linear2(x)
 
+    def get_config(self):
+        cfg = super().get_config()
+
+        return cfg
+
+@keras.saving.register_keras_serializable()
 class TransformerBlock(keras.Layer):
     def __init__(self, config):
         super().__init__()
@@ -89,6 +108,12 @@ class TransformerBlock(keras.Layer):
 
         return x
 
+    def get_config(self):
+        cfg = super().get_config()
+
+        return cfg
+
+@keras.saving.register_keras_serializable()
 class GPTModel(keras.Model):
     def __init__(self, config):
         super().__init__()
@@ -124,6 +149,10 @@ class GPTModel(keras.Model):
 
         return logits
 
+    def get_config(self):
+        cfg = super().get_config()
+
+        return cfg
 
 
 if __name__ == '__main__':
@@ -136,6 +165,5 @@ if __name__ == '__main__':
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, res)
     ax.grid()
-
 
     plt.show()

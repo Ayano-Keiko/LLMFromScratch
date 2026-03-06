@@ -1,6 +1,7 @@
 import keras
 import tensorflow as tf
 
+@keras.saving.register_keras_serializable()
 class MultiHeadAttention(keras.layers.Layer):
     def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False):
         super().__init__()
@@ -58,3 +59,7 @@ class MultiHeadAttention(keras.layers.Layer):
 
         return context_vec
 
+    def get_config(self):
+        cfg = super().get_config()
+
+        return cfg

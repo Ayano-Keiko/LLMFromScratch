@@ -1,2 +1,5 @@
 .venv/
 .idea/
+__pycache__/
+save_weights/
+Re
