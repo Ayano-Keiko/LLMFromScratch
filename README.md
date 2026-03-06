@@ -7,4 +7,4 @@ And the Project will implement the tensorflow alternative code.
 
 ## Dataset
 
-The dataset utilized in the repo is official dataset used in textbook ("the-verdict.txt" file in this book’s GitHub repository at https://mng.bz/Adng.)
+The dataset utilized in the repo is official dataset used in textbook. "the-verdict.txt" file in this book’s [GitHub repository](https://mng.bz/Adng).

@@ -1,11 +1,9 @@
 import json
-import tensorflow as tf
 import tiktoken
 import keras
 from chapter02.dataset import GPTDataset_v1, GPTDataset_v2
 from chapter04_LLM_arch.GPTArchitecture import GPTModel
-from chapter04_LLM_arch.generate_text_simple import generate_text_simple
-from text_id_convertion import text_to_id, id_to_text
+from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
     # print(keras.backend.backend())
@@ -14,8 +12,9 @@ if __name__ == '__main__':
 
     tokenizer = tiktoken.get_encoding('gpt2')
     config = json.load(open('../GPT_CONFIG_124M.json', mode='r', encoding='UTF-8'))
+    epochs = config.get('epochs')
 
-    dataset = GPTDataset_v2('../words.txt',
+    dataset = GPTDataset_v2('../the-verdict.txt',
                             encoding='utf-8',
                             max_length=config.get('context_length'),
                             stride=config.get('context_length'),
@@ -26,13 +25,24 @@ if __name__ == '__main__':
 
     model = GPTModel(config)
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=1e-6),
-        loss=keras.losses.SparseCategoricalCrossentropy(),
+        optimizer=keras.optimizers.AdamW(learning_rate=4e-4),
+        loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=['accuracy']
     )
     history = model.fit(dataset,
-                        epochs=10)
+                        epochs=epochs)
 
-    model.save('../save_weights/pretrainCN.keras')
+    model.save('../save_weights/pretrain.keras')
 
     # model.load_weights('../save_weights/pretrain.keras')
+
+    epochs_range = [i + 1 for i in range(epochs)]
+
+    fig = plt.figure(figsize=(25, 16))
+    ax = fig.add_subplot(2, 1, 1)
+    ax.set_title("accuracy")
+    ax.plot(epochs_range, history.history['accuracy'])
+    ax_loss = fig.add_subplot(2, 1, 2)
+    ax_loss.set_title('loss')
+    ax_loss.plot(epochs_range,  history.history['loss'])
+    fig.savefig('./Reports/pretain.svg')

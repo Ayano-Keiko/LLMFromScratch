@@ -8,8 +8,8 @@ from matplotlib import pyplot as plt
 
 @keras.saving.register_keras_serializable()
 class LayerNorm(keras.layers.Layer):
-    def __init__(self, emb_dim):
-        super().__init__()
+    def __init__(self, emb_dim, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.eps = 1e-5
         self.scale = self.add_weight(
             shape=(emb_dim, ),
@@ -37,9 +37,9 @@ class LayerNorm(keras.layers.Layer):
         return cfg
 
 @keras.saving.register_keras_serializable()
-class GELU(keras.layers.Layer):
-    def __init__(self):
-        super().__init__()
+class GELU(keras.layers.Layer, ):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def call(self, x, *args, **kwargs):
         val = tf.math.sqrt(tf.constant(2.0 / math.pi, dtype=tf.float32))
@@ -58,8 +58,8 @@ class GELU(keras.layers.Layer):
 
 @keras.saving.register_keras_serializable()
 class FeedForward(keras.layers.Layer):
-    def __init__(self, config):
-        super().__init__()
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cfg = config
         self.linear1 = keras.layers.Dense(config['emb_dim'] * 4, activation=keras.activations.gelu)
         self.linear2 = keras.layers.Dense(config['emb_dim'])
@@ -75,8 +75,8 @@ class FeedForward(keras.layers.Layer):
 
 @keras.saving.register_keras_serializable()
 class TransformerBlock(keras.Layer):
-    def __init__(self, config):
-        super().__init__()
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.att = MultiHeadAttention(
             d_in=config.get('emb_dim'),
             d_out=config.get('emb_dim'),
@@ -115,8 +115,8 @@ class TransformerBlock(keras.Layer):
 
 @keras.saving.register_keras_serializable()
 class GPTModel(keras.Model):
-    def __init__(self, config):
-        super().__init__()
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cfg = config
         self.tok_emb = keras.layers.Embedding(input_dim=config['vocab_size'], output_dim=config['emb_dim'])
         self.pos_emb = keras.layers.Embedding(input_dim=config['context_length'], output_dim=config['emb_dim'])
@@ -151,8 +151,20 @@ class GPTModel(keras.Model):
 
     def get_config(self):
         cfg = super().get_config()
-
+        cfg.update({
+            "config":  self.cfg
+        })
         return cfg
+
+    @classmethod
+    def from_config(cls, config, custom_objects=None):
+        if config.get('config'):
+            cfg = config.pop('config')
+            return cls(cfg, **config)
+        else:
+            return cls(**config)
+
+
 
 
 if __name__ == '__main__':

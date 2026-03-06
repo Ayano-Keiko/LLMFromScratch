@@ -3,8 +3,8 @@ import tensorflow as tf
 
 @keras.saving.register_keras_serializable()
 class MultiHeadAttention(keras.layers.Layer):
-    def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False):
-        super().__init__()
+    def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.d_in = d_in
         self.d_out = d_out
         self.num_heads = num_heads
@@ -23,6 +23,7 @@ class MultiHeadAttention(keras.layers.Layer):
             ),
             trainable=False
         )
+        self.out_proj = keras.layers.Dense(d_out)
 
     def call(self, x, *args, **kwargs):
         shape = tf.shape(x)  # (2, 6, 3)
@@ -57,7 +58,9 @@ class MultiHeadAttention(keras.layers.Layer):
         context_vec = tf.transpose(context_vec, perm=(0, 2, 1, 3))
         context_vec = tf.reshape(context_vec, shape=(b, num_tokens, self.num_heads * self.head_dim))
 
-        return context_vec
+        out = self.out_proj(context_vec)
+
+        return out
 
     def get_config(self):
         cfg = super().get_config()

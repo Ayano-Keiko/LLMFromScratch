@@ -12,7 +12,7 @@ def text_to_id(text: str, tokenizer, model):
         token_tensor = torch.tensor(tokens)
         return torch.unsqueeze(token_tensor, dim=0)
     else:
-        return tokens
+        return [tokens]
 
 def id_to_text(tokenIDs, tokenizer, model) -> str:
     if isinstance(model, (tf.Module, keras.Model)):
@@ -20,5 +20,5 @@ def id_to_text(tokenIDs, tokenizer, model) -> str:
     elif isinstance(model, torch.nn.Module):
         return tokenizer.decode(tokenIDs.squeeze(0).tolist())
     else:
-        raise tokenIDs[0]
+        raise tokenizer.decode(tokenIDs[0])
 
