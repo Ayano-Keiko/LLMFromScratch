@@ -14,7 +14,7 @@ if __name__ == '__main__':
     dataset = GPTDataset('../the-verdict.txt',
                          'utf-8', tokenizer, 10, 1)
 
-    txt = "海上升明月，"
+    txt = "Every effort moves you"
     encoded = tokenizer.encode(txt)
     inputs = tf.expand_dims(tf.constant(encoded, dtype=tf.int32), axis=0)
 
@@ -29,4 +29,5 @@ if __name__ == '__main__':
 
     decode_text = tokenizer.decode(out_idxs.numpy().tolist())
     print(f'Decoded text: {decode_text}')
+
     # Decoded text: 海上升明月， Music 911 wandering wandering wandering wandering wandering wandering wandering wandering
