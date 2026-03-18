@@ -9,6 +9,9 @@ class LLMCallBack(tf.keras.callbacks.Callback):
         self.max_new_tokens = max_new_tokens
         self.context_len = context_len
 
+    def on_epoch_begin(self, epoch, logs=None):
+        print(f'\n\n{epoch} start...\n\n')
+
     def on_epoch_end(self, epoch, logs=None):
 
         tokenizer = tiktoken.get_encoding('gpt2')
@@ -18,9 +21,11 @@ class LLMCallBack(tf.keras.callbacks.Callback):
             idx_cond = idx[:, -self.context_len:]
             out = self.model(idx_cond)
             logits = out[:, -1, :]
-            probas = tf.nn.softmax(logits, dim=-1)
-            idx_next = tf.math.argmax(probas, dim=-1, keepdim=True)
+            probas = tf.nn.softmax(logits, axis=-1)
+            idx_next = tf.math.argmax(probas, axis=-1)
+            idx_next = tf.expand_dims(idx_next, axis=0)
+            idx_next = tf.cast(idx_next, dtype=idx.dtype)
             idx = tf.concat([idx, idx_next], axis=1)
 
         text_res = tokenizer.decode(idx[0])
-        print(f'Epoch: {epoch} generate text: {text_res}')
+        print(f'\n\nEpoch: {epoch} generate text: {text_res}\n\n')

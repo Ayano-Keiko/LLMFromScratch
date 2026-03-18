@@ -1,6 +1,6 @@
 import numpy
 import tensorflow as tf
-from text_id_convertion import text_to_id, id_to_text
+from chapter05_pretraining.text_id_convertion import text_to_id, id_to_text
 
 def generate(model, text, tokenizer, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None) -> str:
     idx = text_to_id(text, tokenizer, model)
@@ -8,7 +8,7 @@ def generate(model, text, tokenizer, max_new_tokens, context_size, temperature=0
     for _ in range(max_new_tokens):
         # generate text in loop
         idx_cond = idx[:, -context_size:]
-        logits = model(idx_cond)
+        logits = model.predict(idx_cond)
         logits = logits[:, -1, :]
 
         # New: Filter logits with top_k sampling

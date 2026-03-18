@@ -3,6 +3,7 @@ import tiktoken
 import keras
 from chapter02.dataset import GPTDataset_v1, GPTDataset_v2
 from chapter04_LLM_arch.GPTArchitecture import GPTModel
+from callbacks import LLMCallBack
 from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
@@ -21,7 +22,7 @@ if __name__ == '__main__':
                             batch_size=config.get('batch_size')
                          )
     # print(dataset.__getitem__(0)[0].shape)
-
+    callback = LLMCallBack('Every effort moves you', max_new_tokens=6, context_len=config.get('context_length'))
 
     model = GPTModel(config)
     model.compile(
@@ -30,7 +31,8 @@ if __name__ == '__main__':
         metrics=['accuracy']
     )
     history = model.fit(dataset,
-                        epochs=epochs)
+                        epochs=epochs,
+                        callbacks=[callback])
 
     model.save('../save_weights/pretrain.keras')
 
