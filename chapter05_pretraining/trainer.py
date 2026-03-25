@@ -15,7 +15,7 @@ if __name__ == '__main__':
     config = json.load(open('../GPT_CONFIG_124M.json', mode='r', encoding='UTF-8'))
     epochs = config.get('epochs')
 
-    dataset = GPTDataset_v2('../the-verdict.txt',
+    dataset = GPTDataset_v2('../data/the-verdict.txt',
                             encoding='utf-8',
                             max_length=config.get('context_length'),
                             stride=config.get('context_length'),

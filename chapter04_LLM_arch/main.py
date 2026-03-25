@@ -11,7 +11,7 @@ if __name__ == '__main__':
     tokenizer = tiktoken.get_encoding('gpt2')
 
     GPT_CONFIG_124M = json.load(open('../GPT_CONFIG_124M.json', mode='r', encoding='UTF-8'))
-    dataset = GPTDataset('../the-verdict.txt',
+    dataset = GPTDataset('../data/the-verdict.txt',
                          'utf-8', tokenizer, 10, 1)
 
     txt = "Every effort moves you"
