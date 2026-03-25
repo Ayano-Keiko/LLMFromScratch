@@ -1,5 +1,10 @@
 .venv/
 .idea/
-__pycache__/
+**/__pycache__/
+chapter02/__pycache__/
+chapter03/__pycache__/
+chapter04_LLM_arch/__pycache__/
+chapter05_pretraining/__pycache__/
+chapter06/__pycache__/
 save_weights/
 Reports/
