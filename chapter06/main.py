@@ -6,7 +6,7 @@ import numpy
 import tiktoken
 from chapter02.dataset import SpamDataset
 from classification_model import SpamClassify
-from load_weights import load_weights_into_classify
+from load_weights import load_weights_into_gpt
 from gpt_download import download_and_load_gpt2
 from chapter05_pretraining.text_id_convertion import text_to_id, id_to_text
 from chapter05_pretraining.generate_text_simple import generate
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     spam_classify = SpamClassify(config)
     spam_classify(dummp_inputs)  # build the model
-    load_weights_into_classify(spam_classify, params)
+    load_weights_into_gpt(spam_classify, params, pretrain=False)  # no out_head layer
 
     # spam_classify.trainable = False  # freeze all GPT weights
     # spam_classify.classify.trainable = True
@@ -67,8 +67,9 @@ if __name__ == '__main__':
     print("Outputs:\n", outputs)
     print("Outputs dimensions:", outputs.shape)  # shape: (batch_size, num_tokens, num_classes)
 
-    spam_classify.fit(train_dataset,
-              validation_data=valid_dataset,
-              epochs=config['epochs'] # config['epochs']
-            )
+    spam_classify.fit(
+        train_dataset,
+        validation_data=valid_dataset,
+        epochs=config['epochs'] # config['epochs']
+    )
 
