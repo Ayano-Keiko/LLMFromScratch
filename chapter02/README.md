@@ -1,4 +1,3 @@
-# Chapter 02
+# Chapter 02 : Working with text data
 
-Working with text data<br>
 see ` main.py ` for code to display info about dataset
