@@ -29,5 +29,3 @@ if __name__ == '__main__':
 
     decode_text = tokenizer.decode(out_idxs.numpy().tolist())
     print(f'Decoded text: {decode_text}')
-
-    # Decoded text: 海上升明月， Music 911 wandering wandering wandering wandering wandering wandering wandering wandering

@@ -165,8 +165,6 @@ class GPTModel(keras.Model):
             return cls(**config)
 
 
-
-
 if __name__ == '__main__':
     x = numpy.linspace(-5, 5, 100)
 
