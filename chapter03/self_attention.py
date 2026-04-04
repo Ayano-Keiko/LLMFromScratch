@@ -24,7 +24,3 @@ class SelfAttention(Layer):
                                      axis=-1)
         context_vec =  tf.linalg.matmul(attn_weights, value)
         return context_vec
-
-
-
-

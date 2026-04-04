@@ -68,5 +68,3 @@ if __name__ == '__main__':
 
     print(context_vec)
     print(context_vec.shape)
-
-

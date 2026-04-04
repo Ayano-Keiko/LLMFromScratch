@@ -1,0 +1,14 @@
+{
+  "vocab_size": 50257,
+  "context_length": 1024,
+  "drop_rate": 0.0,
+  "batch_size": 8,
+  "drop_embed": 0.1,
+  "dropout_mha": 0.1,
+  "dropout_after_mha": 0.1,
+  "dropout_feedforward": 0.1,
+  "qkv_bias": true,
+  "epochs": 20,
+  "ignore_index": -100
+
+}
