@@ -8,7 +8,7 @@ And the Project will implement the tensorflow alternative code.
 ## Requirement & Environment
 
 Python 3.12<br>
-TensorFlow >= 2.16 for PyDataset<br>
+TensorFlow >= 2.16 for PyDataset | keras 3.3.0 (detail in https://github.com/keras-team/keras/issues/20098#issuecomment-2276446043)<br>
 
 ## Dataset
 
