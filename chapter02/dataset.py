@@ -1,6 +1,8 @@
 import tiktoken
 import tensorflow as tf
 import pandas
+import keras
+import jax
 
 class GPTDataset_v1:
     def __init__(self, txt_path, read_encoding, tokenizer, max_length, stride, **kwargs):
@@ -89,3 +91,32 @@ class SpamDataset(tf.keras.utils.PyDataset):
             max_leanth = max(len(text), max_leanth)
 
         return max_leanth
+
+
+class LLMPretrainDataset(keras.utils.PyDataset):
+    def __init__(self, text_file, tokenizer, max_length, stride, batch_size):
+        super().__init__()
+        with open(text_file, mode='r', encoding='UTF-8') as text_fp:
+            self.source = []
+            self.target = []
+            self.batch_size = batch_size
+
+            # tokenizer the entire string
+            raw_content = text_fp.read()
+            token_ids = tokenizer.encode(raw_content, allowed_special={"<|endoftext|>"})
+            # Use a sliding window to chunk the book into overlapping sequences of max_length
+            for i in range(0, len(token_ids) - max_length, stride):
+                self.source.append(token_ids[i: i + max_length])
+                self.target.append(token_ids[i+1: i + max_length + 1])
+
+    def __len__(self):
+        return len(self.source) // self.batch_size
+
+    def __getitem__(self, idx):
+        low_idx = idx * self.batch_size
+        high_idx =  min(low_idx + self.batch_size, len(self.source))
+
+        source_batch = jax.numpy.array(self.source[low_idx: high_idx])
+        target_batch = jax.numpy.array(self.target[low_idx: high_idx])
+
+        return source_batch, target_batch
