@@ -12,4 +12,4 @@ TensorFlow >= 2.16 for PyDataset | keras 3.3.0 (detail in https://github.com/ker
 
 ## Dataset
 
-If you want to get the dataset, please refer the repo [GitHub repository](https://mng.bz/Adng).
+If you want to get the dataset, please refer the repo [the-verdict](https://github.com/rasbt/LLMs-from-scratch/blob/main/ch02/01_main-chapter-code/the-verdict.txt).
